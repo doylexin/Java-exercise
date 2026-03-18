@@ -60,7 +60,7 @@ public class Feedback {
      }
     else{
         completeFeedback = feedbackUsingConcatenation(sent1, sent2, sent3, sent4, sent5);
-        checkFeedbackLength(completeFeedback);
+        longFeedback = checkFeedbackLength(completeFeedback);
         creatReviewID(getFirstName(), getLastName());
      }
     }
