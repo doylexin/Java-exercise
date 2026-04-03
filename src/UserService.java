@@ -1,12 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 public class UserService {
-    private void addNewUsers(){
+    private List<RegisteredUsers> registeredUsersList = new ArrayList<>();
+
+    public RegisteredUsers addNewUsers() {
         System.out.println("How many users would you like to add");
         Scanner scanner = new Scanner(System.in);
         int numOfUsers = scanner.nextInt();
         scanner.nextLine();
+
+        RegisteredUsers lastCreatedUser = null; 
         for (int userIdx = 0; userIdx < numOfUsers; userIdx++) {
             System.out.println("Please enter the following details for user " + (userIdx + 1) + ":");
             String fullName = scanner.nextLine();
@@ -19,10 +24,11 @@ public class UserService {
             double feeToCharge = scanner.nextDouble();
             scanner.nextLine();
             int cvv = scanner.nextInt();
-            scanner.nextLine();   
+            scanner.nextLine();
             String userType = scanner.nextLine();
             String[] lastThreeTrips = new String[3];
-            for(int i = 0;i<3;i++){
+
+            for(int i = 0; i < 3; i++){
                 System.out.println("Your last three trips with the date of the trip in YYYY-MM-DD format.");
                 String date = scanner.nextLine();
                 System.out.println("Source and destination of that trip.");
@@ -36,15 +42,21 @@ public class UserService {
                 allDetails.append("Date:").append(date).append(", Source and Destination:").append(sourceAndDestination).append(", Fare Charged:").append(fareCharged).append(", Feedback:").append(feedback);
                 lastThreeTrips[i] = allDetails.toString();
             }
-            RegisteredUsers newUser = new RegisteredUsers(fullName, emailAddress, dateOfBirth,cardNumber, cardProvider, cardExpiryDate,feeToCharge, cvv,userType, lastThreeTrips);
 
-        
+            RegisteredUsers newUser;
+            if(userType.equalsIgnoreCase("VIP")){ 
+                newUser = new VIPUser(fullName, emailAddress, dateOfBirth, cardNumber, cardProvider, cardExpiryDate, feeToCharge, cvv, userType, lastThreeTrips);
+            } else {
+                newUser = new RegularUser(fullName, emailAddress, dateOfBirth, cardNumber, cardProvider, cardExpiryDate, feeToCharge, cvv, userType, lastThreeTrips);
+            }
             registeredUsersList.add(newUser);
+            lastCreatedUser = newUser; 
             System.out.println("User " + (userIdx + 1) + " added successfully!\n");
         }
-        
+        return lastCreatedUser;
     }
-    private void viewRegisteredUsers(){
+
+    public void viewRegisteredUsers(){
         if(registeredUsersList.isEmpty()){
             System.out.println("No registered users found.");
             return;
@@ -65,7 +77,8 @@ public class UserService {
             System.out.println();
         }
     }
-    private void removeRegisteredUsers(){
+
+    public void removeRegisteredUsers(){
         if(registeredUsersList.isEmpty()){
             System.out.println("No registered users found.");
             return;
@@ -80,87 +93,69 @@ public class UserService {
             System.out.println("No user found with email " + emailToRemove + ".");
         }
     }
-    private void updateRegisteredUsers() {
 
-    if (registeredUsersList.isEmpty()) {
-        System.out.println("No registered users to remove");
-        return;
-    }
-
-    Scanner scanner = new Scanner(System.in);
-
-
-    System.out.println("Enter the email address of the user you want to update:");
-    String emailToUpdate = scanner.nextLine();
-
-
-    RegisteredUsers userToUpdate = null;
-    for (RegisteredUsers user : registeredUsersList) {
-        if (user.getEmailAddress().equalsIgnoreCase(emailToUpdate)) {
-            userToUpdate = user;
-            break;
+    public void updateRegisteredUsers() {
+        if (registeredUsersList.isEmpty()) {
+            System.out.println("No registered users to update");
+            return;
         }
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the email address of the user you want to update:");
+        String emailToUpdate = scanner.nextLine();
+        RegisteredUsers userToUpdate = null;
+        for (RegisteredUsers user : registeredUsersList) {
+            if (user.getEmailAddress().equalsIgnoreCase(emailToUpdate)) {
+                userToUpdate = user;
+                break;
+            }
+        }
+        if (userToUpdate == null) {
+            System.out.println("No user found with this email address");
+            return;
+        }
+        System.out.println("Type new full name: (Press ENTER for no change)");
+        String newFullName = scanner.nextLine();
+        if (!newFullName.isEmpty()) {
+            userToUpdate.setFullName(newFullName);
+        }
+        System.out.println("Type new date of birth: (Press ENTER for no change)");
+        String newDateOfBirth = scanner.nextLine();
+        if (!newDateOfBirth.isEmpty()) {
+            userToUpdate.setDateOfBirth(newDateOfBirth);
+        }
+        System.out.println("Type new card number: (Enter 0 for no change)");
+        long newCardNumber = scanner.nextLong();
+        scanner.nextLine();
+        if (newCardNumber != 0) {
+            userToUpdate.setCardNumber(newCardNumber);
+        }
+        System.out.println("Type new card provider: (Press ENTER for no change)");
+        String newCardProvider = scanner.nextLine();
+        if (!newCardProvider.isEmpty()) {
+            userToUpdate.setCardProvider(newCardProvider);
+        }
+        System.out.println("Type new card expiry date: (Press ENTER for no change)");
+        String newCardExpiryDate = scanner.nextLine();
+        if (!newCardExpiryDate.isEmpty()) {
+            userToUpdate.setCardExpiryDate(newCardExpiryDate);
+        }
+        System.out.println("Type new CVV: (Enter 0 for no change)");
+        int newCvv = scanner.nextInt();
+        scanner.nextLine();
+        if (newCvv != 0) {
+            userToUpdate.setCvv(newCvv);
+        }
+        System.out.println("Type new user type: (Press ENTER for no change)");
+        String newUserType = scanner.nextLine();
+        if (!newUserType.isEmpty()) {
+            userToUpdate.setUserType(newUserType);
+        }
+        System.out.println("Type new fee to charge: (Enter 0 for no change)");
+        double newFeeToCharge = scanner.nextDouble();
+        scanner.nextLine();
+        if (newFeeToCharge != 0) {
+            userToUpdate.setFeeToCharge(newFeeToCharge);
+        }
+        System.out.println("User with email " + emailToUpdate + " updated successfully.");
     }
-
-   
-    if (userToUpdate == null) {
-        System.out.println("No user found with this email address");
-        return;
-    }
-
-   
-    System.out.println("Type new full name: (Press ENTER for no change)");
-    String newFullName = scanner.nextLine();
-    if (!newFullName.isEmpty()) {
-        userToUpdate.setFullName(newFullName);
-    }
-
-    System.out.println("Type new date of birth: (Press ENTER for no change)");
-    String newDateOfBirth = scanner.nextLine();
-    if (!newDateOfBirth.isEmpty()) {
-        userToUpdate.setDateOfBirth(newDateOfBirth);
-    }
-
-    System.out.println("Type new card number: (Enter 0 for no change)");
-    long newCardNumber = scanner.nextLong();
-    scanner.nextLine();
-    if (newCardNumber != 0) {
-        userToUpdate.setCardNumber(newCardNumber);
-    }
-
-    System.out.println("Type new card provider: (Press ENTER for no change)");
-    String newCardProvider = scanner.nextLine();
-    if (!newCardProvider.isEmpty()) {
-        userToUpdate.setCardProvider(newCardProvider);
-    }
-
-    System.out.println("Type new card expiry date: (Press ENTER for no change)");
-    String newCardExpiryDate = scanner.nextLine();
-    if (!newCardExpiryDate.isEmpty()) {
-        userToUpdate.setCardExpiryDate(newCardExpiryDate);
-    }
-
-    System.out.println("Type new CVV: (Enter 0 for no change)");
-    int newCvv = scanner.nextInt();
-    scanner.nextLine();
-    if (newCvv != 0) {
-        userToUpdate.setCvv(newCvv);
-    }
-
-    System.out.println("Type new user type: (Press ENTER for no change)");
-    String newUserType = scanner.nextLine();
-    if (!newUserType.isEmpty()) {
-        userToUpdate.setUserType(newUserType);
-    }
-
-    System.out.println("Type new fee to charge: (Enter 0 for no change)");
-    double newFeeToCharge = scanner.nextDouble();
-    scanner.nextLine();
-    if (newFeeToCharge != 0) {
-        userToUpdate.setFeeToCharge(newFeeToCharge);
-    }
-
-    System.out.println("User with email " + emailToUpdate + " updated successfully.");
 }
-}
-
